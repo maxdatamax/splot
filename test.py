@@ -1,43 +1,54 @@
 from bivar import *
 from bokeh.plotting import output_file, show, gridplot
-from bokeh.charts import BoxPlot
-from bokeh import mpl
 import seaborn as sns
+
 
 # generate some test data
 df = generate_test_dataframe(1000)
-x, g = 'x3', 'c1'
+
+# set x and y variables
+x, y = 'cv1', 'yv3'
 
 # make the boxplot
-st, dt = get_summary_stats(x, g, df)
+st, dt = get_summary_stats(x, y, df)
+
+dt.dropna(inplace=True)
 
 # output to static HTML file
 output_file("test.html", title="Test Plots")
 
 # make a few versions of the plot
-p1 = make_stripplot(x, g, dt, .3, False)
-p2 = make_stripplot(x, g, dt, .3, True)
+p1 = make_stripplot(x, y, dt, .3, False)
+p2 = make_stripplot(x, y, dt, .3, True)
 
-p3 = make_boxplot(x, g, st, dt, .3, .7, True, True, True)
-p4 = make_boxplot(x, g, st, dt, .3, .5, False, False, True)
+p3 = make_boxplot(x, y, st, dt, .3, .7, True, True, True)
+p4 = make_boxplot(x, y, st, dt, .3, .5, False, False, True)
 
-p5 = make_violinplot(x, g, st, dt, .3, .7, True, True, True)
-p6 = make_violinplot(x, g, st, dt, .3, 0, False, False, True)
+p5 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.1, vw=1,
+                     jitter_points=True, show_points=True, show_outliers=True)
 
-# make the bokeh version of the plot
-d = {}
-for level in df.c1.cat.categories:
-    d.update({level: np.array(df[df['c1'] == level]['x3'])})
+p6 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.1, vw=.8,
+                     jitter_points=False, show_points=False, show_outliers=True)
 
-p7 = make_boxplot(x, g, st, dt, .5, .8, False, False, True)
-p8 = BoxPlot(d, marker='circle', outliers=True, tools='')
+# get some seaborn data for comparison
+tips = sns.load_dataset("tips")
+x, y = 'day', 'total_bill'
 
-# make a seaborn version of the boxplot
-p9 = make_boxplot(x, g, st, dt, .5, .8, False, False, True)
+st, dt = get_summary_stats('day', 'total_bill', tips)
 
-sns.boxplot(g, x, data=df, color='c')
+p7 = make_boxplot(x=x, y=y, st=st, dt=dt, jw=.3, bw=.7,
+                  jitter_points=True, show_points=True, show_outliers=True)
+
+p8 = make_boxplot(x=x, y=y, st=st, dt=dt, jw=.3, bw=.7,
+                  jitter_points=False, show_points=False, show_outliers=True)
+
+p9 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=1,
+                     jitter_points=False, show_points=False, show_outliers=True)
+
+p10 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=6,
+                      jitter_points=False, show_points=False, show_outliers=True)
 
 # render the plots
-p = gridplot([[p1, p2], [p3, p4], [p5, p6], [p7, p8], [p9, mpl.to_bokeh()]])
+p = gridplot([[p1, p2], [p3, p4], [p5, p6], [p7, p8], [p9, p10]])
 
 show(p)
