@@ -1,29 +1,12 @@
-import pandas as pd
 import numpy as np
 from scipy import stats
 from bokeh.plotting import figure
 
 
-def generate_test_dataframe(n=1000):
-
-    # base dataframe
-    df = pd.DataFrame({'yv1': 100 + np.random.randn(n),
-                       'cv1': pd.Categorical(np.random.choice(list('ABCDEF'), n), ordered=True),
-                       'bv1': np.random.choice(a=[np.nan, 1], size=n, replace=True, p=[0.1, .90])})
-
-    # interactions. x2 depends on the levels of c1.
-    df['yv2'] = np.cos(df['cv1'].cat.codes)*.5 + df['yv1']
-
-    # now make x3 the same as x2,  but with the random missing values (real world,  we have missing data)
-    df['yv3'] = df['yv2'] * df['bv1']
-
-    return df
-
-
 def get_summary_stats(x=None, y=None, data=None):
 
     # create a df of just the two variables and summarize it
-    # TODO:  Consider if dropna() should be always applied?
+    # TODO:  Change this to only return the summary table.
     dt = data[[x, y]]
 
     # make a group by object to be used later.
@@ -38,6 +21,7 @@ def get_summary_stats(x=None, y=None, data=None):
     st['lwl'] = st['25%'] - 1.5 * st['iqr']
     st['uwl'] = st['75%'] + 1.5 * st['iqr']
 
+    # TODO:  Make separate function to compute and flag outliers.
     # join the uwl and lwl to the raw data, check if outlier and store boolean with data table
     dt = dt.join(st[['lwl', 'uwl']], on=x)
     dt['outlier'] = ~dt[y].between(dt['lwl'], dt['uwl'])
@@ -115,7 +99,7 @@ def make_boxplot(x=None, y=None, st=None, dt=None, jw=.3, bw=.6,
     return p
 
 
-def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=1,
+def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=.8,
                     jitter_points=True, show_points=True, show_outliers=True):
 
     # create a figure
@@ -152,17 +136,22 @@ def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=1,
     for cat in dt[x].cat.categories:
 
         # subset values and get kde function.
-        print(cat)
         yd = dt[dt[x] == cat][y]
 
-        kde = stats.gaussian_kde(yd)
+        # get the kde function fot hsi data
+        pdf = stats.gaussian_kde(yd)
 
-        # define the range over which to evaluate the kde
-        xg = np.linspace(yd.min(), yd.max(), 50)
+        # define the point within the range over which to evaluate the kde
+        yp = np.linspace(yd.min(), yd.max(), 50)
 
-        # compute the coordinates of the patch and add it to the plot
-        yv = np.append(xg, xg[::-1])
-        xv = np.append(vw*kde(xg), -vw*kde(xg[::-1]))
+        # compute x and y values of the patch and add it to the plot
+        yv = np.append(yp, yp[::-1])
+
+        # compute the pdf (x values) and normalize the max pdf value
+        xp = pdf(yp)
+        xp = xp/xp.max()*vw/2
+        xv = np.append(xp, -xp[::-1])
+
         p.patch((xv+ix), yv, alpha=0.3, color='black')
 
         ix += 1

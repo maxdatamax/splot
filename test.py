@@ -1,4 +1,5 @@
 from bivar import *
+from df_generator import *
 from bokeh.plotting import output_file, show, gridplot
 import seaborn as sns
 
@@ -42,10 +43,10 @@ p7 = make_boxplot(x=x, y=y, st=st, dt=dt, jw=.3, bw=.7,
 p8 = make_boxplot(x=x, y=y, st=st, dt=dt, jw=.3, bw=.7,
                   jitter_points=False, show_points=False, show_outliers=True)
 
-p9 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=1,
-                     jitter_points=False, show_points=False, show_outliers=True)
+p9 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=.8,
+                     jitter_points=False, show_points=True, show_outliers=True)
 
-p10 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=6,
+p10 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=.6,
                       jitter_points=False, show_points=False, show_outliers=True)
 
 # render the plots
