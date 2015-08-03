@@ -25,10 +25,10 @@ p2 = make_stripplot(x, y, dt, .3, True)
 p3 = make_boxplot(x, y, st, dt, .3, .7, True, True, True)
 p4 = make_boxplot(x, y, st, dt, .3, .5, False, False, True)
 
-p5 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.1, vw=1,
+p5 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.1, vw=.8,
                      jitter_points=True, show_points=True, show_outliers=True)
 
-p6 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.1, vw=.8,
+p6 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.1, vw=.7,
                      jitter_points=False, show_points=False, show_outliers=True)
 
 # get some seaborn data for comparison
@@ -43,8 +43,8 @@ p7 = make_boxplot(x=x, y=y, st=st, dt=dt, jw=.3, bw=.7,
 p8 = make_boxplot(x=x, y=y, st=st, dt=dt, jw=.3, bw=.7,
                   jitter_points=False, show_points=False, show_outliers=True)
 
-p9 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=.8,
-                     jitter_points=False, show_points=True, show_outliers=True)
+p9 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=.2, vw=.8,
+                     jitter_points=True, show_points=True, show_outliers=True)
 
 p10 = make_violinplot(x=x, y=y, st=st, dt=dt, jw=0, vw=.6,
                       jitter_points=False, show_points=False, show_outliers=True)

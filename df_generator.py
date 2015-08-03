@@ -5,7 +5,7 @@ def generate_test_dataframe(n=1000):
 
     # base dataframe
     df = pd.DataFrame({'yv1': 100 + 10*np.random.randn(n),
-                       'cv1': pd.Categorical(np.random.choice(list('ABCDEF'), n), ordered=True),
+                       'cv1': pd.Categorical(np.random.choice(list('ABCDEFG'), n), ordered=True),
                        'bv1': np.random.choice(a=[np.nan, 1], size=n, replace=True, p=[0.1, .90])})
 
     # interactions. x2 depends on the levels of c1.
