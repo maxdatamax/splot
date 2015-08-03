@@ -141,8 +141,12 @@ def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=.8,
         # get the kde function fot hsi data
         pdf = stats.gaussian_kde(yd)
 
-        # define the point within the range over which to evaluate the kde
-        yp = np.linspace(yd.min(), yd.max(), 50)
+        # define the point within the range over which to compute the pdf.
+        # using the same rule as matlab (but generalizing it)
+        ymin, ymax = yd.min(), yd.max()
+        yrange = ymax-ymin
+        padding = yrange * 0.2
+        yp = np.linspace(ymin-padding, ymax+padding, 50)
 
         # compute x and y values of the patch and add it to the plot
         yv = np.append(yp, yp[::-1])
@@ -160,8 +164,8 @@ def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=.8,
     p.scatter(st['xc'], st['50%'], marker='x', color='black')
 
     # plot lower and upper whiskers (x0, y0, x1, y1)
-    p.segment(st['xc'], st['25%'], st['xc'], st['lwp'], color='black', line_width=2)
-    p.segment(st['xc'], st['75%'], st['xc'], st['uwp'], color='black', line_width=2)
+    p.segment(st['xc'], st['25%'], st['xc'], st['lwp'], color='black', line_width=1)
+    p.segment(st['xc'], st['75%'], st['xc'], st['uwp'], color='black', line_width=1)
 
     # plot lower and upper whisker terminations
     p.segment(st['xc']-jw/6, st['uwp'], st['xc']+jw/6, st['uwp'], color='black')
