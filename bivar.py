@@ -1,19 +1,15 @@
 import numpy as np
 from scipy import stats
 from bokeh.plotting import figure
+from summarize_df import get_summary_stats
+
+# TODO:
 
 
-def make_base_plot(x=None, y=None, dt=None, tools='', width=450, height=300):
+def make_base_plot(x=None, y=None, data=None, tools='', width=450, height=300):
 
     # create a figure (allow setting)
-    p = figure(x_range=list(dt[x].cat.categories), tools=tools, width=width, height=height)
-
-    """
-    Guiding styling philosophy is that less is more.  Keep the data to ink ratio in favor of showing of the data,  not
-    the chart attributes. Charts are given default x and y axis labels,  as well as a title of "y vs. x".  Ticks are
-    minimized and do not extend into the chart area.  x grid lines are off by default.  Outline of plot is uniform color
-    and thickness (makes them more R lattice like - on purpose!)
-    """
+    p = figure(x_range=list(data[x].cat.categories), tools=tools, width=width, height=height)
 
     # styling - outline of plot
     p.outline_line_color = 'grey'
@@ -44,25 +40,31 @@ def make_base_plot(x=None, y=None, dt=None, tools='', width=450, height=300):
     return p
 
 
-def make_stripplot(x=None, y=None, dt=None, jw=.3, jitter_points=None):
+def make_stripplot(x=None, y=None, data=None, jitter_points=False, jw=0.3):
 
     # create a figure
-    p = make_base_plot(x=x, y=y, dt=dt)
+    p = make_base_plot(x=x, y=y, data=data)
 
     if jitter_points:
-        p.scatter(dt[x].cat.codes+1 + (np.random.random(len(dt))-0.5) * jw, dt[y])
+        p.scatter(data[x].cat.codes+1 + (np.random.random(len(data))-0.5) * jw, data[y])
 
     else:
-        p.scatter(dt[x].cat.codes+1, dt[y])
+        p.scatter(data[x].cat.codes+1, data[y])
 
     return p
 
 
-def make_boxplot(x=None, y=None, st=None, dt=None, jw=.3, bw=.6,
+def make_boxplot(x=None, y=None, data=None, jw=.3, bw=.6,
                  jitter_points=True, show_points=True, show_outliers=True):
 
-    # create a figure
-    p = make_base_plot(x=x, y=y, dt=dt)
+    # make a data frame of just the variables needed,  and drop missing values.
+    dt = data[[x, y]].dropna()
+
+    # summarize the data and mark the outliers
+    st, dt = get_summary_stats(x, y, dt)
+
+    # make the base plot
+    p = make_base_plot(x=x, y=y, data=dt)
 
     # jitter categorical data
     if jitter_points:
@@ -80,7 +82,10 @@ def make_boxplot(x=None, y=None, st=None, dt=None, jw=.3, bw=.6,
     if show_outliers:
         p.scatter(dt[dt.outlier]['xc'], dt[dt.outlier][y], color='red', marker='x', size=4, alpha=1)
 
+    # ************************
     # *** Box and Whiskers ***
+    # ************************
+
     # get centered locations of the boxes
     st['xc'] = st.index.codes+1
 
@@ -101,12 +106,18 @@ def make_boxplot(x=None, y=None, st=None, dt=None, jw=.3, bw=.6,
     return p
 
 
-def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=.8,
+def make_violinplot(x=None, y=None, data=None, jw=.3, vw=.8,
                     jitter_points=True, show_points=True, show_outliers=True,
                     bw_method='scott'):
 
+    # make a data frame of just the variables needed,  and drop missing values.
+    dt = data[[x, y]].dropna()
+
+    # summarize the data and mark the outliers
+    st, dt = get_summary_stats(x, y, dt)
+
     # make the base plot
-    p = make_base_plot(x=x, y=y, dt=dt)
+    p = make_base_plot(x=x, y=y, data=dt)
 
     # draw the violins.  Better way?
     ix = 1
@@ -153,6 +164,13 @@ def make_violinplot(x=None, y=None, st=None, dt=None, jw=.3, vw=.8,
     # plot outliers
     if show_outliers:
         p.scatter(dt[dt.outlier]['xc'], dt[dt.outlier][y], color='red', marker='x', size=4, alpha=1)
+
+    # ************************
+    # *** Box and Whiskers ***
+    # ************************
+
+    # get centered locations of the boxes
+    st['xc'] = st.index.codes+1
 
     # plot median
     p.scatter(st['xc'], st['med'], marker='o', color='black')
