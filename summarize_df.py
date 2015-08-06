@@ -4,7 +4,6 @@ import numpy as np
 def get_summary_stats(x=None, y=None, data=None):
 
     # create a df of just the two variables and summarize it
-    # TODO:  Change this to only return the summary table.
     dt = data[[x, y]]
 
     # make a group by object to be used later.
@@ -13,12 +12,6 @@ def get_summary_stats(x=None, y=None, data=None):
     st = dtg.agg([('q1', lambda x: np.percentile(x, 25)),
                   ('med', lambda x: np.percentile(x, 50)),
                   ('q3', lambda x: np.percentile(x, 75))])
-
-    """
-    compute the iqr and upper, lower whisker limits for each level of the group
-    note:  the whiskers are not drawn to these points.  Whiskers extend up to the
-    highest non outlier datum and down to the lowest non outlier dataum.
-    """
 
     st['iqr'] = st['q3'] - st['q1']
     st['lwl'] = st['q1'] - 1.5 * st['iqr']
