@@ -47,19 +47,20 @@ def make_strip_plot(x=None, y=None, data=None, jitter_points=False, jw=0.3):
     p = make_base_plot(x=x, y=y, data=dt)
 
     if jitter_points:
-        p.scatter(dt[x].cat.codes+1 + (np.random.random(len(dt))-0.5) * jw, dt[y])
+        p.scatter(dt[x].cat.codes+1 + (np.random.random(len(dt))-0.5) * jw, dt[y],
+                  color='black', marker='o', size=4, alpha=1, line_color=None)
 
     else:
-        p.scatter(dt[x].cat.codes+1, dt[y])
+        p.scatter(dt[x].cat.codes+1, dt[y], color='black', marker='o', size=4, alpha=1, line_color=None)
 
     return p
 
 
-def make_box_plot(x=None, y=None, data=None, jw=.3, bw=.6, jitter_points=True, show_points=False, show_outliers=True,
+def make_box_plot(x=None, y=None, data=None, jw=.3, bw=.6, jitter_points=False, show_points=False, show_outliers=True,
                   box_fill_color='lightgrey', box_line_color='grey', box_line_width=1,
                   whisker_line_color='grey', whisker_line_width=1):
 
-    # make a data frame of just the variables needed,  and drop missing values.
+    # make a dataframe of just the variables needed,  drop missing values.
     dt = data[[x, y]].dropna()
 
     # summarize the data and mark the outliers
@@ -109,7 +110,7 @@ def make_box_plot(x=None, y=None, data=None, jw=.3, bw=.6, jitter_points=True, s
     # plot non-outliers
     if show_points:
         p.scatter(dt[~dt.outlier]['xc'], dt[~dt.outlier][y],
-                  color='black', marker='o', size=4, alpha=0.5, line_color=None)
+                  color='black', marker='o', size=4, alpha=1, line_color=None)
 
     # plot outliers
     if show_outliers:
@@ -118,7 +119,7 @@ def make_box_plot(x=None, y=None, data=None, jw=.3, bw=.6, jitter_points=True, s
     return p
 
 
-def make_violin_plot(x=None, y=None, data=None, jw=.3, vw=.8, jitter_points=True, show_points=False,
+def make_violin_plot(x=None, y=None, data=None, jw=.3, vw=.8, jitter_points=False, show_points=False,
                      show_outliers=True, bw_method='scott', violin_padding=.1, grid_points=50):
 
     # make a data frame of just the variables needed,  and drop missing values.
@@ -140,22 +141,25 @@ def make_violin_plot(x=None, y=None, data=None, jw=.3, vw=.8, jitter_points=True
         # subset values and get kde function.
         y_data = dt[dt[x] == category][y]
 
-        # define the points within the range over which to compute the pdf.
-        y_min, y_max = y_data.min(), y_data.max()
-        y_padding = (y_max - y_min) * violin_padding
-        y_grid = np.linspace(y_min - y_padding, y_max + y_padding, grid_points)
+        # If kde can be calculated,  then compute pdf values and add to plot
+        if len(y_data) > 1:
 
-        # get the pdf function for the y_data, compute and normalize the pdf values to desired width
-        pdf = stats.gaussian_kde(y_data, bw_method)
-        x_pdf = pdf(y_grid)
-        x_pdf = x_pdf/x_pdf.max()*vw/2
+            # define the points within the range over which to compute the pdf.
+            y_min, y_max = y_data.min(), y_data.max()
+            y_padding = (y_max - y_min) * violin_padding
+            y_grid = np.linspace(y_min - y_padding, y_max + y_padding, grid_points)
 
-        # Build arrays that describe the patch points by appending reversed arrays (and negated for x)
-        x_patch = np.append(x_pdf, -x_pdf[::-1])  # negated and reversed to get the left side of the violin
-        y_patch = np.append(y_grid, y_grid[::-1]) # reversed to start left violin where right violin ended
+            # get the pdf function for the y_data, compute and normalize the pdf values to desired width
+            pdf = stats.gaussian_kde(y_data, bw_method)
+            x_pdf = pdf(y_grid)
+            x_pdf = x_pdf/x_pdf.max()*vw/2
 
-        # add the patch to the plot
-        p.patch((x_patch + ix), y_patch, alpha=1, color='lightgrey', line_color='grey', line_width=1)
+            # Build arrays that describe the patch points by appending reversed arrays (and negated for x)
+            x_patch = np.append(x_pdf, -x_pdf[::-1])   # negated and reversed to get the left side of the violin
+            y_patch = np.append(y_grid, y_grid[::-1])  # reversed to start left violin where right violin ended
+
+            # add the patch to the plot
+            p.patch((x_patch + ix), y_patch, alpha=1, color='lightgrey', line_color='grey', line_width=1)
 
         ix += 1
 

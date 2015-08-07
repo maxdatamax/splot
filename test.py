@@ -5,7 +5,7 @@ import seaborn as sns
 
 
 # generate some test data
-df = generate_test_dataframe(500)
+df = generate_test_dataframe(1000)
 
 # output to static HTML file
 output_file("test.html", title="Test Plots")
