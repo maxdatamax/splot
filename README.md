@@ -11,7 +11,7 @@ x variable.  The data for the plot is just some dummy random data generated usin
 
 The plots on the left show what the plot looks like with the default call and no other options.  The plots on the right show the same data,  but with some other options (showing points,  outliers,  etc).
 
-Note that the name of the variables (from the dateframe) are automatically used for the axis labels and each plot is given a default title of y vs x (I wish this was a overridable,  but gobal default for bokeh!)
+Note that the name of the variables (from the dateframe) are automatically used for the axis labels and each plot is given a default title of y vs x (I wish this was the default behavior for bokeh!)
 
 
 ```python
