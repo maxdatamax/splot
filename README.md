@@ -1,15 +1,17 @@
 # splot
 
-This is a project to test out a few statistical plots based on the bokeh plotting library.  Other packages such as
+This is a project to test out a few statistical plots based on the bokeh plotting package.  Other packages such as
 pandas, numpy and scipy are also leveraged.  Currently,  this python code is written functionally,  not object oriented.
-I would love some help and guidance turning these definitions into full fledged objects.
+I would appreciate some help and guidance for turning these functions into methods on objects.
 
-Here are some current example of the calls and the output that is generated.
+Here are some examples of the definition calls and the plots which are generated.
 
-The first grouping of 6 plots below shows stripplot,  boxplot and violinplot of a continuous x variable vs a categorical
-y variable.  The data for the plot is just some dummy random data generated using pandas and numpy.random.  The plots on
-the left show what the plot looks like with the defaults.  The plots on the right show the same data,  but with some
-other options (showing points,  outliers,  etc)
+The first grouping of 6 plots below shows stripplot,  boxplot and violinplot of a continuous y variable vs a categorical
+x variable.  The data for the plot is just some dummy random data generated using pandas and numpy.random.  
+
+The plots on the left show what the plot looks like with the default call and no other options.  The plots on the right show the same data,  but with some other options (showing points,  outliers,  etc).
+
+Note that the name of the variables (from the dateframe) are automatically used for the axis labels and each plot is given a default title of y vs x (I wish this was a overridable,  but gobal default for bokeh!)
 
 
 ```python
