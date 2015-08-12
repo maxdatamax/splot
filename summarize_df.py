@@ -9,9 +9,9 @@ def get_summary_stats(x=None, y=None, data=None):
     # make a group by object to be used later.
     dtg = dt.groupby(x)[y]
 
-    st = dtg.agg([('q1', lambda x: np.percentile(x, 25)),
-                  ('med', lambda x: np.percentile(x, 50)),
-                  ('q3', lambda x: np.percentile(x, 75))])
+    st = dtg.agg([('q1', lambda z: np.percentile(z, 25)),
+                  ('med', lambda z: np.percentile(z, 50)),
+                  ('q3', lambda z: np.percentile(z, 75))])
 
     st['iqr'] = st['q3'] - st['q1']
     st['lwl'] = st['q1'] - 1.5 * st['iqr']

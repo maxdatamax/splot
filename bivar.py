@@ -44,11 +44,11 @@ def make_strip_plot(x=None, y=None, data=None,
                     jitter_points=False, jitter_width=0.3, plot=None):
 
     # subset to the columns of interest and drop missing
-    dt = data.dropna()
+    dt = data[[x, y]].dropna()
 
     # create a figure if one does not already exist
     if plot is None:
-        plot = make_base_plot(x=x, y=y, data=dt)
+        plot = make_base_plot(x=x, y=y, data=data)
 
     # add the points to the plot
     if jitter_points:
@@ -61,15 +61,15 @@ def make_strip_plot(x=None, y=None, data=None,
     return plot
 
 
-def make_box_plot(x=None, y=None, data=None, st=None, box_width=.6, show_points=False,
+def make_box_plot(x=None, y=None, data=None, st=None, box_width=.6, show_points=False, show_outliers=True,
                   box_fill_color='lightgrey', box_line_color='grey', box_line_width=1,
                   whisker_line_color='grey', whisker_line_width=1, plot=None, **kwargs):
 
-    dt = data.dropna()
-
     # if no summary table (st) is passed, then we need to create one and mark the outliers in the data
-    if st is None:
-        st, dt = get_summary_stats(x, y, data)
+    if st is None and 'outliers' not in data.columns:
+        st, dt = get_summary_stats(x, y, data[[x, y]].dropna())
+    else:
+        dt = data
 
     # create a figure if one does not already exist
     if plot is None:
@@ -102,22 +102,25 @@ def make_box_plot(x=None, y=None, data=None, st=None, box_width=.6, show_points=
     plot.segment(st['xc'] - box_width / 6, st['lwp'], st['xc']+box_width / 6, st['lwp'],
                  line_color=whisker_line_color, line_width=whisker_line_width)
 
-    # ******************
-    # *** Raw Points ***
-    # ******************
+    # **********************
+    # *** Add Raw Points ***
+    # **********************
 
     # plot outliers (always?)
-    plot = make_strip_plot(x, y, dt[dt.outlier], point_color='red', point_marker='x', plot=plot, point_size=5, **kwargs)
+    if show_outliers:
+        plot = make_strip_plot(x, y, dt[dt.outlier],
+                               point_color='red', point_marker='x', plot=plot, point_size=5, **kwargs)
 
     if show_points:
-        plot = make_strip_plot(x, y, dt[~dt.outlier], point_color='black', point_marker='o', plot=plot, **kwargs)
+        plot = make_strip_plot(x, y, dt[~dt.outlier],
+                               point_color='black', point_marker='o', plot=plot, **kwargs)
 
     return plot
 
 
 def make_violin_plot(x=None, y=None, data=None,
                      bw_method='scott', violin_padding=.1, grid_points=50, violin_width=.8,
-                     show_points=False, show_boxes=True, plot=None, **kwargs):
+                     show_points=False, show_outliers=True, show_boxes=True, plot=None, **kwargs):
 
     # make a data frame of just the variables needed,  and drop missing values.
     dt = data[[x, y]].dropna()
@@ -126,9 +129,9 @@ def make_violin_plot(x=None, y=None, data=None,
     if plot is None:
         plot = make_base_plot(x=x, y=y, data=dt)
 
-    # ***************
-    # *** Violins ***
-    # ***************
+    # *******************
+    # *** Add Violins ***
+    # *******************
 
     ix = 1
     for category in dt[x].cat.categories:
@@ -158,23 +161,22 @@ def make_violin_plot(x=None, y=None, data=None,
 
         ix += 1
 
-    # ************************
-    # *** Box and Whiskers ***
-    # ************************
+    # ********************************
+    # *** Add boxes and raw points ***
+    # ********************************
 
     # summarize the data and mark the outliers in the data table
     st, dt = get_summary_stats(x, y, dt)
 
     if show_boxes:
-        plot = make_box_plot(x=x, y=y, data=dt, st=st, box_width=violin_width/6, plot=plot, **kwargs)
+        plot = make_box_plot(x=x, y=y, data=dt, st=st,
+                             box_width=violin_width/4, plot=plot, show_outliers=False, show_points=False, **kwargs)
 
-    # ******************
-    # *** Raw Points ***
-    # ******************
+    # plot outliers
+    if show_outliers:
+        plot = make_strip_plot(x, y, dt[dt.outlier], point_color='red', point_marker='x', plot=plot, point_size=5, **kwargs)
 
-    # plot outliers (always?)
-    plot = make_strip_plot(x, y, dt[dt.outlier], point_color='red', point_marker='x', plot=plot, point_size=5, **kwargs)
-
+    # plot non outliers
     if show_points:
         plot = make_strip_plot(x, y, dt[~dt.outlier], point_color='black', point_marker='o', plot=plot, **kwargs)
 
