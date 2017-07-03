@@ -1,6 +1,7 @@
 import numpy as np
 from scipy import stats
 from bokeh.plotting import figure
+from bokeh.models import Title
 from summarize_df import get_summary_stats
 
 
@@ -15,8 +16,8 @@ def make_base_plot(x=None, y=None, data=None, width=640, height=480, tools='', p
     plot.outline_line_width = 1
 
     # styling - title
-    plot.title = y + ' vs. ' + x
-    plot.title_text_font_size = "12pt"
+    plot.title = Title(text=y + ' vs. ' + x, align="center")
+    #plot.title_text_font_size = "12pt"
 
     # styling - grid lines
     plot.xgrid.grid_line_color = None
